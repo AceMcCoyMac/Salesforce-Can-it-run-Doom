@@ -1,0 +1,34 @@
+[
+  {
+    "id" : "home",
+    "label" : "Home",
+    "isLoginRequired" : false,
+    "pageReference" : {
+      "type" : "comm__namedPage",
+      "attributes" : {
+        "name" : "Home"
+      },
+      "state" : {}
+    },
+    "url" : "/",
+    "changeFrequency" : "daily",
+    "priority" : 1.0,
+    "isAvailableToGuests" : true
+  },
+  {
+    "id" : "doom",
+    "label" : "Doom",
+    "isLoginRequired" : false,
+    "pageReference" : {
+      "type" : "comm__namedPage",
+      "attributes" : {
+        "name" : "Doom"
+      },
+      "state" : {}
+    },
+    "url" : "/doom",
+    "changeFrequency" : "daily",
+    "priority" : 0.85,
+    "isAvailableToGuests" : true
+  }
+]

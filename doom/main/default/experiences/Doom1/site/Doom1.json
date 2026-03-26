@@ -1,0 +1,10 @@
+{
+  "template" : {
+    "bundleName" : "LightningBolt",
+    "id" : "c8ad2f5d-e97b-4f45-9906-6dc7cf9c34f8"
+  },
+  "themeName" : "Lex",
+  "themeLayoutType" : "Inner",
+  "isAvailableToGuests" : true,
+  "defaultLanguage" : "en_US"
+}

@@ -1,0 +1,27 @@
+{
+  "view" : {
+    "id" : "doom_home",
+    "label" : "Doom",
+    "themeLayoutType" : "Inner",
+    "regions" : [
+      {
+        "id" : "content",
+        "label" : "Content",
+        "backgroundImageConfig" : "",
+        "backgroundColor" : "000000",
+        "components" : [
+          {
+            "id" : "doom-lwc-component",
+            "componentName" : "c:doom",
+            "properties" : {},
+            "regions" : []
+          }
+        ]
+      }
+    ]
+  },
+  "pageType" : "comm__namedPage",
+  "pageAttributes" : {
+    "name" : "Doom"
+  }
+}
