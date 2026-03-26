@@ -221,23 +221,6 @@ sf package install --package <version-id> --target-org <org-alias>
 
 ---
 
-## ❓ Why
-
-```
-The eternal question: "Can it run Doom?"
-
-✅ Your grandma's toaster: yes
-✅ A pregnancy test: yes
-✅ A John Deere tractor: yes
-✅ Salesforce: ...
-```
-
-**Nobody had asked Salesforce. Until now.**
-
-The answer is yes. Obviously yes. It was always going to be yes.
-
----
-
 ## 🩸 Status
 
 - [x] 🏗️ Salesforce app scaffolded (App, Tab, LWC, Permission Set)
