@@ -1,5 +1,9 @@
 # Salesforce: Can it run Doom?
 
+## Why
+
+Because "can it run Doom?" is the eternal question. We've seen Salesforce run DosBox games, but now we need to know, once and for all in native code: Salesforce ...cam ot run Doom?
+
 **Yes. Yes it can.**
 
 This project implements Doom as a Lightning Web Component (LWC) exposed on a publicly accessible Salesforce Digital Experience site — so anyone on the internet can play Doom, served by Salesforce.
@@ -56,9 +60,3 @@ sf package version create --package Doom --installation-key-bypass --wait 10
 # Install in a target org
 sf package install --package <version-id> --target-org <org-alias>
 ```
-
-## Why
-
-Because "can it run Doom?" is the eternal question, and Salesforce has never been asked.
-
-Until now.
