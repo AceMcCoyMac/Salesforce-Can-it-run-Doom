@@ -1,0 +1,17 @@
+{
+  "packageDirectories": [
+    {
+      "path": "force-app",
+      "default": true,
+      "package": "Doom",
+      "versionName": "ver 0.1",
+      "versionNumber": "0.1.0.NEXT",
+      "description": "Can Salesforce run Doom? Yes. Yes it can."
+    }
+  ],
+  "name": "doom-sf",
+  "namespace": "",
+  "sfdcLoginUrl": "https://doom-dev-ed.develop.my.salesforce.com",
+  "sourceApiVersion": "59.0",
+  "packageAliases": {}
+}

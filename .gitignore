@@ -1,0 +1,18 @@
+# Salesforce CLI
+.sf/
+.sfdx/
+*.sfdx
+
+# Node
+node_modules/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/settings.json
+.idea/
+
+# Temp deploy artifacts
+deploy/
