@@ -1,7 +1,7 @@
 {
   "packageDirectories": [
     {
-      "path": "force-app",
+      "path": "doom",
       "default": true,
       "package": "Doom",
       "versionName": "ver 0.1",
