@@ -6,7 +6,7 @@
 
 ---
 
-## 💀 Yes. Yes it can.
+## 💀 Why?
 
 Because "can it run Doom?" is the eternal question. We've seen Salesforce run DosBox games, but now we need to know, once and for all in native code: can Salesforce run Doom?
 
