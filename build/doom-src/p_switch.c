@@ -141,8 +141,12 @@ void P_InitSwitchList(void)
 	    
 	    value = R_TextureNumForName(alphSwitchList[i].name1);
 #endif
-	    switchlist[index++] = R_TextureNumForName(alphSwitchList[i].name1);
-	    switchlist[index++] = R_TextureNumForName(alphSwitchList[i].name2);
+	    /* Use safe lookup - shareware WAD may not have all switch textures */
+	    int t1 = R_CheckTextureNumForName(alphSwitchList[i].name1);
+	    int t2 = R_CheckTextureNumForName(alphSwitchList[i].name2);
+	    if (t1 < 0 || t2 < 0) continue;  /* skip missing textures */
+	    switchlist[index++] = t1;
+	    switchlist[index++] = t2;
 	}
     }
 }
