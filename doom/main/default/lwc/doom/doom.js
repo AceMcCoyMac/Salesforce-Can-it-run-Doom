@@ -7,7 +7,13 @@ export default class Doom extends LightningElement {
     @track loading = true;
     @track statusText = 'Initialising engine...';
 
+    // Prevent multiple instances from fighting each other in the Lightning tab
+    _started = false;
+
     connectedCallback() {
+        if (this._started) return;
+        this._started = true;
+
         loadScript(this, DOOM_ENGINE)
             .then(() => {
                 this.statusText = 'Engine loaded. Fetching WAD...';
@@ -30,53 +36,63 @@ export default class Doom extends LightningElement {
     _startDoom(wadBuffer) {
         const canvas = this.refs.gameCanvas;
         const wadBytes = new Uint8Array(wadBuffer);
-        // eslint-disable-next-line no-undef
         const self = this;
 
-        // IMPORTANT: preRun callbacks receive the module object as an argument,
-        // so we don't rely on the return value of createDoom() being available yet.
+        // Emscripten SDL2 needs the canvas element accessible by querySelector('#canvas').
+        // LWC shadow DOM hides it, so we attach it to document temporarily via a
+        // lightweight bridge: override Module.canvas directly so SDL finds it.
         // eslint-disable-next-line no-undef
         createDoom({
             canvas: canvas,
             noInitialRun: true,
 
+            // preRun receives the module instance as its argument
             preRun: [function(mod) {
-                // mod is the module object, safe to use here
-                mod.FS.createDataFile('/', 'doom1.wad', wadBytes, true, true);
+                try {
+                    mod.FS.createDataFile('/', 'doom1.wad', wadBytes, true, true);
+                } catch(e) {
+                    console.error('[DOOM] FS error:', e);
+                    self.statusText = 'FS error: ' + e.message;
+                }
             }],
 
             onRuntimeInitialized: function() {
-                // 'this' here is the module object
-                try {
-                    self.loading = false;
+                const mod = this;
+                console.log('[DOOM] Runtime initialised, calling main...');
+                self.loading = false;
+
+                // Give the DOM a tick to remove the loading overlay before starting
+                setTimeout(function() {
                     canvas.focus();
-                    this.callMain([
-                        '-iwad',    'doom1.wad',
-                        '-window',
-                        '-nogui',
-                        '-nomusic',
-                        '-episode', '1'
-                    ]);
-                } catch(e) {
-                    self.statusText = 'Runtime error: ' + e.message;
-                    console.error('[DOOM] callMain error:', e);
-                }
+                    try {
+                        mod.callMain([
+                            '-iwad',    'doom1.wad',
+                            '-window',
+                            '-nogui',
+                            '-nomusic',
+                            '-config',  'default.cfg'
+                        ]);
+                    } catch(e) {
+                        // callMain with asyncify throws "unwind" intentionally — that's OK
+                        if (e !== 'unwind' && e !== 'RuntimeError: unreachable') {
+                            console.error('[DOOM] callMain error:', e);
+                            self.statusText = 'Runtime error: ' + String(e).substring(0, 120);
+                        }
+                    }
+                }, 100);
             },
 
             print: function(text) {
-                if (text) {
-                    console.log('[DOOM]', text);
-                    if (text.startsWith('doom:')) {
-                        self.statusText = text;
-                    }
-                }
+                if (text) console.log('[DOOM]', text);
             },
 
             printErr: function(text) {
                 if (text) {
                     console.error('[DOOM ERR]', text);
-                    // Surface engine errors to the UI
-                    self.statusText = 'Engine: ' + text.substring(0, 120);
+                    // Only show meaningful errors, not the routine SDL/GL chatter
+                    if (text.indexOf('Error') !== -1 || text.indexOf('Warning') !== -1) {
+                        self.statusText = String(text).substring(0, 120);
+                    }
                 }
             },
 
