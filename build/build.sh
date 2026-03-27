@@ -116,3 +116,26 @@ echo ""
 echo "✅ Build complete!"
 echo "Output size:"
 wc -c "$OUT/doom-engine.js" | awk '{printf "  doom-engine.js: %.2f MB\n", $1/1048576}'
+
+# Post-build LWS compatibility patches
+# Salesforce Lightning Web Security blocks certain document.* properties
+echo "🔧 Applying LWS compatibility patches..."
+python3 -c "
+import re, sys
+with open('$OUT/doom-engine.js') as f:
+    c = f.read()
+
+patches = [
+    # fullscreenEnabled blocked by LWS - we don't need fullscreen
+    ('fullscreenEnabled(){return document.fullscreenEnabled||document.webkitFullscreenEnabled}',
+     'fullscreenEnabled(){return false}'),
+]
+for old, new in patches:
+    if old in c:
+        c = c.replace(old, new)
+        print('  ✓ Patched:', old[:60])
+
+with open('$OUT/doom-engine.js', 'w') as f:
+    f.write(c)
+"
+echo "✅ LWS patches applied"
