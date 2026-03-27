@@ -70,7 +70,8 @@ export default class Doom extends LightningElement {
                             '-window',
                             '-nogui',
                             '-nomusic',
-                            '-config',  'default.cfg'
+                            '-config',  'default.cfg',
+                            '-nodemo'
                         ]);
                     } catch(e) {
                         // callMain with asyncify throws "unwind" intentionally — that's OK
