@@ -16,3 +16,4 @@ Thumbs.db
 
 # Temp deploy artifacts
 deploy/
+.auth/Doom.sfdx-url

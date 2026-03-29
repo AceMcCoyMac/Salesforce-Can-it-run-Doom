@@ -1,0 +1,5 @@
+# Compiled output - too large for git
+out/
+
+# Intermediate object files
+*.o

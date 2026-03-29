@@ -1,0 +1,43 @@
+:host {
+    display: block;
+    background-color: #000;
+    width: 100%;
+    min-height: 400px;
+}
+
+.doom-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: #000;
+    min-height: 400px;
+    width: 100%;
+    gap: 12px;
+}
+
+.doom-canvas {
+    display: block;
+    width: 640px;
+    height: 400px;
+    background-color: #000;
+    image-rendering: pixelated;
+    cursor: none;
+    max-width: 100%;
+}
+
+.doom-loading {
+    color: #ff0000;
+    font-family: 'Courier New', monospace;
+    font-size: 18px;
+    text-align: center;
+    padding: 40px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.doom-status {
+    font-size: 13px;
+    color: #880000;
+    margin-top: 12px;
+}

@@ -1,5 +1,23 @@
 <template>
-    <div>
-        <!-- Doom will be rendered here -->
+    <div class="doom-wrapper">
+        <template lwc:if={loading}>
+            <div class="doom-loading">
+                <p>⚡ Loading DOOM...</p>
+                <p class="doom-status">{statusText}</p>
+            </div>
+        </template>
+        <canvas
+            id="canvas"
+            class="doom-canvas"
+            lwc:ref="gameCanvas"
+            width="640"
+            height="400"
+            tabindex="0"
+            oncontextmenu={preventContext}
+            onkeydown={handleCanvasKey}
+            onkeyup={handleCanvasKey}
+            onmousedown={handleCanvasFocus}
+            ontouchstart={handleCanvasFocus}>
+        </canvas>
     </div>
 </template>
