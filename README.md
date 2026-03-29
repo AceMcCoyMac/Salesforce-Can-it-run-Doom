@@ -2,6 +2,14 @@
 
 > **"Rip and tear... your sales pipeline."**
 
+## 🎮 Play It Now
+
+Run Doom on the live public Salesforce Digital Experience site:
+
+**https://doom-dev-ed.develop.my.site.com**
+
+You can also run it inside the internal Salesforce `Doom` custom app, but the public site above is the fastest way to try it.
+
 ![Doom Logo](doom/main/default/staticresources/DoomLogo.png)
 
 ---
@@ -13,6 +21,8 @@ Because "can it run Doom?" is the eternal question. We've seen Salesforce run Do
 **Yes. Yes it can.**
 
 This project implements Doom as a Lightning Web Component (LWC) exposed on a publicly accessible Salesforce Digital Experience (LWR) site — so anyone on the internet can play Doom, served by Salesforce.
+
+Live site: **https://doom-dev-ed.develop.my.site.com**
 
 ---
 
@@ -45,6 +55,8 @@ This project implements Doom as a Lightning Web Component (LWC) exposed on a pub
 ```
 
 The key insight: Salesforce's Lightning Web Security (LWS) blocks WebAssembly (`wasm-unsafe-eval` CSP). So instead of compiling to WASM, we use **Emscripten's asm.js output** (`-s WASM=0`) — pure JavaScript, no CSP issues.
+
+An additional Experience Cloud wrinkle: the public Digital Experience runtime has stricter Lightning Web Security behavior than the internal custom app. The shipped LWC includes the runtime-safe startup path needed for the public `my.site.com` experience to boot correctly.
 
 ---
 
@@ -142,6 +154,11 @@ loadScript(this, DOOM_ENGINE)
 
 The `<canvas>` element lives in the LWC shadow DOM and is passed directly to the Emscripten module — SDL2 renders frames into it at 320×200, scaled to 640×400.
 
+During the Digital Experience work, the component was also hardened for the public site runtime:
+- safer startup sequencing so the Experience container can paint before heavy engine bootstrap
+- LWS-safe diagnostics and error handling
+- fixes for public-site startup behavior that differs from the internal Lightning app container
+
 ### Step 5 — Digital Experience Site
 
 Created a **LWR (Lightning Web Runtime)** Digital Experience site named `Doom`.
@@ -207,6 +224,12 @@ sf org login web --instance-url https://your-org.my.salesforce.com --alias doom
 sf project deploy start --target-org doom --source-dir doom
 ```
 
+### Open The Live Site
+
+If you just want to see Doom running on Salesforce, open:
+
+**https://doom-dev-ed.develop.my.site.com**
+
 ---
 
 ## 📦 Unlocked Package
@@ -228,10 +251,10 @@ sf package install --package <version-id> --target-org <org-alias>
 - [x] 💾 DOOM1.WAD shareware uploaded as static resource
 - [x] ⚡ LWC wired to load engine + WAD and boot the game
 - [x] 🌐 Digital Experience (LWR) site live with `c:doom` on the home page
-- [ ] 🧪 Runtime testing + CSP/LWS debugging
-- [ ] 🎮 Keyboard input tuning for browser play
+- [x] 🔓 Public guest access (no login required)
+- [x] 🧪 Runtime testing + CSP/LWS debugging for the public site
+- [x] 🎮 Keyboard input working for browser play
 - [ ] 💅 Doom-themed site styling
-- [ ] 🔓 Public guest access (no login required)
 
 ---
 
@@ -240,6 +263,14 @@ sf package install --package <version-id> --target-org <org-alias>
 ### Why asm.js and not WASM?
 
 Salesforce Lightning Web Security (LWS) enforces a strict Content Security Policy. `WebAssembly.instantiate()` requires the `wasm-unsafe-eval` CSP directive, which Salesforce doesn't allow in LWC context. Emscripten's `-s WASM=0` flag generates asm.js — semantically equivalent JavaScript that JIT-compiles almost as fast as WASM in modern browsers, with zero CSP friction.
+
+### Why Did The Public Site Need Extra Work?
+
+The Doom LWC worked in the internal Salesforce custom app before it worked on the public Digital Experience site. The key difference was the Experience runtime's Lightning Web Security behavior:
+
+- the public site applies stricter runtime restrictions than the internal app shell
+- startup and diagnostics had to be adjusted to be safe in that environment
+- the final working implementation supports both the internal app and the public `my.site.com` site
 
 ### Memory
 
