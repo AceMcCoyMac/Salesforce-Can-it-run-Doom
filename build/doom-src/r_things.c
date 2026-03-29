@@ -179,7 +179,6 @@ void R_InitSpriteDefs (char** namelist)
     char**	check;
     int		i;
     int		l;
-    int		intname;
     int		frame;
     int		rotation;
     int		start;
@@ -210,13 +209,11 @@ void R_InitSpriteDefs (char** namelist)
 	memset (sprtemp,-1, sizeof(sprtemp));
 		
 	maxframe = -1;
-	intname = *(int *)namelist[i];
-	
 	// scan the lumps,
 	//  filling in the frames for whatever is found
 	for (l=start+1 ; l<end ; l++)
 	{
-	    if (*(int *)lumpinfo[l].name == intname)
+	    if (!strncmp(lumpinfo[l].name, spritename, 4))
 	    {
 		frame = lumpinfo[l].name[4] - 'A';
 		rotation = lumpinfo[l].name[5] - '0';
@@ -245,7 +242,6 @@ void R_InitSpriteDefs (char** namelist)
 	}
 		
 	maxframe++;
-	
 	for (frame = 0 ; frame < maxframe ; frame++)
 	{
 	    switch ((int)sprtemp[frame].rotate)
@@ -984,6 +980,4 @@ void R_DrawMasked (void)
     if (!viewangleoffset)		
 	R_DrawPlayerSprites ();
 }
-
-
 

@@ -124,6 +124,11 @@ typedef struct
     
 } texture_t;
 
+static short ReadLeShort(const byte* ptr)
+{
+    return (short)(ptr[0] | (ptr[1] << 8));
+}
+
 
 
 int		firstflat;
@@ -410,7 +415,7 @@ R_GetColumn
 //
 void R_InitTextures (void)
 {
-    maptexture_t*	mtexture;
+    byte*		mtexture;
     texture_t*		texture;
     mappatch_t*		mpatch;
     texpatch_t*		patch;
@@ -519,19 +524,19 @@ void R_InitTextures (void)
 	if (offset > maxoff)
 	    I_Error ("R_InitTextures: bad texture directory");
 	
-	mtexture = (maptexture_t *) ( (byte *)maptex + offset);
+	mtexture = (byte *)maptex + offset;
 
 	texture = textures[i] =
 	    Z_Malloc (sizeof(texture_t)
-		      + sizeof(texpatch_t)*(SHORT(mtexture->patchcount)-1),
+		      + sizeof(texpatch_t)*(ReadLeShort(mtexture + 20)-1),
 		      PU_STATIC, 0);
 	
-	texture->width = SHORT(mtexture->width);
-	texture->height = SHORT(mtexture->height);
-	texture->patchcount = SHORT(mtexture->patchcount);
+	texture->width = ReadLeShort(mtexture + 12);
+	texture->height = ReadLeShort(mtexture + 14);
+	texture->patchcount = ReadLeShort(mtexture + 20);
 
-	memcpy (texture->name, mtexture->name, sizeof(texture->name));
-	mpatch = &mtexture->patches[0];
+	memcpy (texture->name, mtexture, sizeof(texture->name));
+	mpatch = (mappatch_t *)(mtexture + 22);
 	patch = &texture->patches[0];
 
 	for (j=0 ; j<texture->patchcount ; j++, mpatch++, patch++)
@@ -843,7 +848,5 @@ void R_PrecacheLevel (void)
 	}
     }
 }
-
-
 
 

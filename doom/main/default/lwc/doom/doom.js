@@ -21,16 +21,36 @@ export default class Doom extends LightningElement {
             })
             .then(response => {
                 if (!response.ok) throw new Error('Failed to fetch WAD: ' + response.status);
+                const contentType = response.headers.get('content-type') || 'unknown';
+                const contentLength = response.headers.get('content-length') || 'unknown';
+                console.log('[DOOM] WAD response headers:', { contentType, contentLength });
                 this.statusText = 'WAD downloaded. Starting game...';
                 return response.arrayBuffer();
             })
             .then(wadBuffer => {
+                this._validateWad(wadBuffer);
                 this._startDoom(wadBuffer);
             })
             .catch(error => {
                 this.statusText = 'Error: ' + error.message;
                 console.error('[DOOM] Load error:', error);
             });
+    }
+
+    _validateWad(wadBuffer) {
+        const wadBytes = new Uint8Array(wadBuffer);
+        const magic = String.fromCharCode(...wadBytes.slice(0, 4));
+
+        console.log('[DOOM] WAD validation:', {
+            byteLength: wadBytes.length,
+            magic
+        });
+
+        if (magic !== 'IWAD' && magic !== 'PWAD') {
+            throw new Error(
+                `Fetched file is not a Doom WAD. Header was "${magic || 'empty'}" (${wadBytes.length} bytes)`
+            );
+        }
     }
 
     _startDoom(wadBuffer) {
@@ -49,7 +69,11 @@ export default class Doom extends LightningElement {
             // preRun receives the module instance as its argument
             preRun: [function(mod) {
                 try {
-                    mod.FS.createDataFile('/', 'doom1.wad', wadBytes, true, true);
+                    // Classic Doom auto-detects ./doom1.wad. Make the virtual FS explicit.
+                    mod.FS.chdir('/');
+                    mod.FS.writeFile('/doom1.wad', wadBytes);
+                    mod.FS.writeFile('/default.cfg', '');
+                    console.log('[DOOM] WAD mounted in FS:', mod.FS.stat('/doom1.wad').size, 'bytes');
                 } catch(e) {
                     console.error('[DOOM] FS error:', e);
                     self.statusText = 'FS error: ' + e.message;
@@ -66,7 +90,6 @@ export default class Doom extends LightningElement {
                     canvas.focus();
                     try {
                         mod.callMain([
-                            '-iwad',    'doom1.wad',
                             '-window',
                             '-nogui',
                             '-nomusic',
@@ -103,6 +126,9 @@ export default class Doom extends LightningElement {
                     self.statusText = text;
                 }
             }
+        }).catch(error => {
+            console.error('[DOOM] Runtime bootstrap error:', error);
+            self.statusText = 'Bootstrap error: ' + error.message;
         });
     }
 
