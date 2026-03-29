@@ -363,6 +363,9 @@ EV_VerticalDoor
 	
     side = 0;	// only front sides can be used
 
+    printf("[DOOM USE] EV_VerticalDoor special=%d sidenum0=%d sidenum1=%d\n",
+           line->special, line->sidenum[0], line->sidenum[1]);
+
     //	Check for locks
     player = thing->player;
 		

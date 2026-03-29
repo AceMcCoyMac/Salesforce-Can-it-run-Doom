@@ -282,6 +282,8 @@ P_UseSpecialLine
   line_t*	line,
   int		side )
 {               
+    printf("[DOOM USE] P_UseSpecialLine special=%d side=%d player=%d flags=%d\n",
+           line->special, side, thing->player != NULL, line->flags);
 
     // Err...
     // Use the back sides of VERY SPECIAL lines...
@@ -655,4 +657,3 @@ P_UseSpecialLine
 	
     return true;
 }
-

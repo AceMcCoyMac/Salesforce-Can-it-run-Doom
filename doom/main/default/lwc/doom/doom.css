@@ -13,6 +13,7 @@
     background-color: #000;
     min-height: 400px;
     width: 100%;
+    gap: 12px;
 }
 
 .doom-canvas {

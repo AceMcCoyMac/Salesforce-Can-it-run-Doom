@@ -1091,6 +1091,23 @@ P_LineAttack
 // USE LINES
 //
 mobj_t*		usething;
+static boolean  useLineActivated;
+boolean PTR_UseTraverse (intercept_t* in);
+
+static boolean P_TryUsePath(fixed_t x1, fixed_t y1, angle_t angle)
+{
+    int     fineangle;
+    fixed_t x2;
+    fixed_t y2;
+
+    fineangle = angle >> ANGLETOFINESHIFT;
+    x2 = x1 + FixedMul(USERANGE, finecosine[fineangle]);
+    y2 = y1 + FixedMul(USERANGE, finesine[fineangle]);
+
+    printf("[DOOM USE] Trace from (%d,%d) to (%d,%d)\n", x1, y1, x2, y2);
+    P_PathTraverse(x1, y1, x2, y2, PT_ADDLINES, PTR_UseTraverse);
+    return useLineActivated;
+}
 
 boolean	PTR_UseTraverse (intercept_t* in)
 {
@@ -1099,6 +1116,8 @@ boolean	PTR_UseTraverse (intercept_t* in)
     if (!in->d.line->special)
     {
 	P_LineOpening (in->d.line);
+	printf("[DOOM USE] Hit non-special line openrange=%ld flags=%d sidenum0=%d sidenum1=%d\n",
+	       openrange, in->d.line->flags, in->d.line->sidenum[0], in->d.line->sidenum[1]);
 	if (openrange <= 0)
 	{
 	    S_StartSound (usething, sfx_noway);
@@ -1109,13 +1128,18 @@ boolean	PTR_UseTraverse (intercept_t* in)
 	// not a special line, but keep checking
 	return true ;		
     }
-	
+    
     side = 0;
     if (P_PointOnLineSide (usething->x, usething->y, in->d.line) == 1)
 	side = 1;
+
+    printf("[DOOM USE] Hit special line special=%d flags=%d side=%d sidenum0=%d sidenum1=%d\n",
+	   in->d.line->special, in->d.line->flags, side,
+	   in->d.line->sidenum[0], in->d.line->sidenum[1]);
     
     //	return false;		// don't use back side
 	
+    useLineActivated = true;
     P_UseSpecialLine (usething, in->d.line, side);
 
     // can't use for than one special line in a row
@@ -1129,22 +1153,39 @@ boolean	PTR_UseTraverse (intercept_t* in)
 //
 void P_UseLines (player_t*	player) 
 {
-    int		angle;
+    int		fineangle;
+    int		sidefineangle;
     fixed_t	x1;
     fixed_t	y1;
-    fixed_t	x2;
-    fixed_t	y2;
+    fixed_t	sideX;
+    fixed_t	sideY;
 	
     usething = player->mo;
-		
-    angle = player->mo->angle >> ANGLETOFINESHIFT;
-
     x1 = player->mo->x;
     y1 = player->mo->y;
-    x2 = x1 + (USERANGE>>FRACBITS)*finecosine[angle];
-    y2 = y1 + (USERANGE>>FRACBITS)*finesine[angle];
-	
-    P_PathTraverse ( x1, y1, x2, y2, PT_ADDLINES, PTR_UseTraverse );
+    fineangle = player->mo->angle >> ANGLETOFINESHIFT;
+    sidefineangle = (player->mo->angle + ANG90) >> ANGLETOFINESHIFT;
+    sideX = FixedMul(8*FRACUNIT, finecosine[sidefineangle]);
+    sideY = FixedMul(8*FRACUNIT, finesine[sidefineangle]);
+
+    useLineActivated = false;
+    if (P_TryUsePath(x1, y1, player->mo->angle))
+        return;
+
+    useLineActivated = false;
+    if (P_TryUsePath(x1 + sideX, y1 + sideY, player->mo->angle))
+        return;
+
+    useLineActivated = false;
+    if (P_TryUsePath(x1 - sideX, y1 - sideY, player->mo->angle))
+        return;
+
+    useLineActivated = false;
+    if (P_TryUsePath(x1, y1, player->mo->angle + (ANG45/8)))
+        return;
+
+    useLineActivated = false;
+    P_TryUsePath(x1, y1, player->mo->angle - (ANG45/8));
 }
 
 
@@ -1336,4 +1377,3 @@ P_ChangeSector
 	
     return nofit;
 }
-

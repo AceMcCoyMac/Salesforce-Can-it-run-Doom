@@ -35,6 +35,10 @@ rcsid[] = "$Id: p_user.c,v 1.3 1997/01/28 22:08:29 b1 Exp $";
 
 #include "doomstat.h"
 
+#ifdef __EMSCRIPTEN__
+#include <emscripten/emscripten.h>
+#endif
+
 
 
 // Index of the special effects (INVUL inverse) map.
@@ -329,6 +333,23 @@ void P_PlayerThink (player_t* player)
     }
     else
 	player->usedown = false;
+
+#ifdef __EMSCRIPTEN__
+    if (EM_ASM_INT({
+        if (typeof window !== 'undefined' && window.__doomForceUseDirect) {
+            window.__doomForceUseDirect = false;
+            return 1;
+        }
+        return 0;
+    }))
+    {
+        printf("[DOOM USE] Direct use requested at x=%ld y=%ld angle=%u\n",
+               player->mo->x, player->mo->y, player->mo->angle);
+        player->usedown = false;
+        P_UseLines (player);
+        player->usedown = true;
+    }
+#endif
     
     // cycle psprites
     P_MovePsprites (player);
@@ -382,5 +403,3 @@ void P_PlayerThink (player_t* player)
     else
 	player->fixedcolormap = 0;
 }
-
-

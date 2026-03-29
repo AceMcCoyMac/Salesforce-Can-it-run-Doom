@@ -12,8 +12,12 @@
             lwc:ref="gameCanvas"
             width="640"
             height="400"
-            tabindex="-1"
-            oncontextmenu={preventContext}>
+            tabindex="0"
+            oncontextmenu={preventContext}
+            onkeydown={handleCanvasKey}
+            onkeyup={handleCanvasKey}
+            onmousedown={handleCanvasFocus}
+            ontouchstart={handleCanvasFocus}>
         </canvas>
     </div>
 </template>

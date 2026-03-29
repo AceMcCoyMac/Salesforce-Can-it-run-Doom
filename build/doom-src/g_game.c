@@ -43,6 +43,9 @@ rcsid[] = "$Id: g_game.c,v 1.8 1997/02/03 22:45:09 b1 Exp $";
 #include "p_tick.h"
 
 #include "d_main.h"
+#ifdef __EMSCRIPTEN__
+#include <emscripten/emscripten.h>
+#endif
 
 #include "wi_stuff.h"
 #include "hu_stuff.h"
@@ -337,6 +340,20 @@ void G_BuildTiccmd (ticcmd_t* cmd)
 	// clear double clicks if hit use button 
 	dclicks = 0;                   
     } 
+
+#ifdef __EMSCRIPTEN__
+    if (EM_ASM_INT({
+        if (typeof window !== 'undefined' && window.__doomForceUse) {
+            window.__doomForceUse = false;
+            return 1;
+        }
+        return 0;
+    }))
+    {
+        cmd->buttons |= BT_USE;
+        dclicks = 0;
+    }
+#endif
 
     // chainsaw overrides 
     for (i=0 ; i<NUMWEAPONS-1 ; i++)        

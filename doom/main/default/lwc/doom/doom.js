@@ -135,4 +135,61 @@ export default class Doom extends LightningElement {
     preventContext(event) {
         event.preventDefault();
     }
+
+    handleCanvasFocus() {
+        const canvas = this.refs.gameCanvas;
+        if (canvas) {
+            canvas.focus();
+        }
+    }
+
+    handleCanvasKey(event) {
+        const gameplayKeys = new Set([
+            ' ',
+            'ArrowUp',
+            'ArrowDown',
+            'ArrowLeft',
+            'ArrowRight',
+            'Tab',
+            'Shift',
+            'Control',
+            'Alt'
+        ]);
+
+        if (gameplayKeys.has(event.key)) {
+            event.preventDefault();
+            event.stopPropagation();
+            if (event.type === 'keydown' && event.key === ' ') {
+                window.__doomUseQueued = true;
+                window.__doomForceUse = true;
+                window.__doomForceUseDirect = true;
+            }
+            this._forwardKeyEvent(event);
+        }
+    }
+
+    _forwardKeyEvent(event) {
+        const forwarded = new KeyboardEvent(event.type, {
+            key: event.key,
+            code: event.code,
+            location: event.location,
+            repeat: event.repeat,
+            ctrlKey: event.ctrlKey,
+            shiftKey: event.shiftKey,
+            altKey: event.altKey,
+            metaKey: event.metaKey,
+            bubbles: true,
+            cancelable: true
+        });
+
+        try {
+            Object.defineProperty(forwarded, 'keyCode', { value: event.keyCode || event.which || 0 });
+            Object.defineProperty(forwarded, 'which', { value: event.which || event.keyCode || 0 });
+        } catch (e) {
+            // Some browsers won't let us redefine these legacy fields. That's fine.
+        }
+
+        document.dispatchEvent(forwarded);
+        window.dispatchEvent(forwarded);
+    }
 }

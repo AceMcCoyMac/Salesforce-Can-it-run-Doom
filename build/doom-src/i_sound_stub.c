@@ -42,8 +42,11 @@ void S_UpdateSounds(void* listener) {}
 // ---------- Input tick (called by main loop) ----------
 // Reads keyboard/mouse events via SDL and posts them to Doom's event queue
 #include <SDL2/SDL.h>
+#include <emscripten/emscripten.h>
 #include "d_event.h"
 #include "d_main.h"
+
+static int queuedUseKeyup = 0;
 
 static int translateKey(SDL_Keycode sym)
 {
@@ -121,6 +124,26 @@ void I_StartTic(void)
             default:
                 break;
         }
+    }
+
+    if (queuedUseKeyup) {
+        doom_event.type = ev_keyup;
+        doom_event.data1 = ' ';
+        D_PostEvent(&doom_event);
+        queuedUseKeyup = 0;
+    }
+
+    if (EM_ASM_INT({
+        if (typeof window !== 'undefined' && window.__doomUseQueued) {
+            window.__doomUseQueued = false;
+            return 1;
+        }
+        return 0;
+    })) {
+        doom_event.type = ev_keydown;
+        doom_event.data1 = ' ';
+        D_PostEvent(&doom_event);
+        queuedUseKeyup = 1;
     }
 }
 
